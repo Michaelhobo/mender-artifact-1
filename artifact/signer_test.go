@@ -113,48 +113,48 @@ BlUY/oCrAGUGN10F49+c
 )
 
 func TestPublicKey(t *testing.T) {
-	m, err := getKeyAndVerifyMethod([]byte(PublicRSAKey))
+	m, err := GetKeyAndVerifyMethod([]byte(PublicRSAKey))
 	assert.NoError(t, err)
 	assert.NotNil(t, m)
-	assert.IsType(t, &RSA{}, m.method)
-	assert.IsType(t, &rsa.PublicKey{}, m.key)
+	assert.IsType(t, &RSA{}, m.Method)
+	assert.IsType(t, &rsa.PublicKey{}, m.Key)
 
-	m, err = getKeyAndVerifyMethod([]byte(PublicECDSAKey))
+	m, err = GetKeyAndVerifyMethod([]byte(PublicECDSAKey))
 	assert.NoError(t, err)
 	assert.NotNil(t, m)
-	assert.IsType(t, &ECDSA256{}, m.method)
-	assert.IsType(t, &ecdsa.PublicKey{}, m.key)
+	assert.IsType(t, &ECDSA256{}, m.Method)
+	assert.IsType(t, &ecdsa.PublicKey{}, m.Key)
 
-	m, err = getKeyAndVerifyMethod([]byte(PublicDSAKey))
+	m, err = GetKeyAndVerifyMethod([]byte(PublicDSAKey))
 	assert.Error(t, err)
 	assert.Nil(t, m)
 
-	m, err = getKeyAndVerifyMethod([]byte("some ivalid key"))
+	m, err = GetKeyAndVerifyMethod([]byte("some ivalid key"))
 	assert.Error(t, err)
 	assert.Nil(t, m)
-	m, err = getKeyAndVerifyMethod([]byte(PublicRSAKeyInvalid))
+	m, err = GetKeyAndVerifyMethod([]byte(PublicRSAKeyInvalid))
 	assert.Error(t, err)
 	assert.Nil(t, m)
 }
 
 func TestPrivateKey(t *testing.T) {
-	m, err := getKeyAndSignMethod([]byte(PrivateRSAKey))
+	m, err := GetKeyAndSignMethod([]byte(PrivateRSAKey))
 	assert.NoError(t, err)
 	assert.NotNil(t, m)
-	assert.IsType(t, &RSA{}, m.method)
-	assert.IsType(t, &rsa.PrivateKey{}, m.key)
+	assert.IsType(t, &RSA{}, m.Method)
+	assert.IsType(t, &rsa.PrivateKey{}, m.Key)
 
-	m, err = getKeyAndSignMethod([]byte(PrivateECDSAKey))
+	m, err = GetKeyAndSignMethod([]byte(PrivateECDSAKey))
 	assert.NoError(t, err)
 	assert.NotNil(t, m)
-	assert.IsType(t, &ECDSA256{}, m.method)
-	assert.IsType(t, &ecdsa.PrivateKey{}, m.key)
+	assert.IsType(t, &ECDSA256{}, m.Method)
+	assert.IsType(t, &ecdsa.PrivateKey{}, m.Key)
 
-	m, err = getKeyAndSignMethod([]byte(PrivateDSAKey))
+	m, err = GetKeyAndSignMethod([]byte(PrivateDSAKey))
 	assert.Error(t, err)
 	assert.Nil(t, m)
 
-	m, err = getKeyAndSignMethod([]byte("invalid key"))
+	m, err = GetKeyAndSignMethod([]byte("invalid key"))
 	assert.Error(t, err)
 	assert.Nil(t, m)
 }
@@ -231,9 +231,9 @@ func TestECDSARaw(t *testing.T) {
 	assert.Nil(t, sig)
 
 	// invalid key length
-	crypt, err := getKeyAndSignMethod([]byte(PrivateECDSA384))
+	crypt, err := GetKeyAndSignMethod([]byte(PrivateECDSA384))
 	assert.NoError(t, err)
-	sig, err = r.Sign([]byte("my message"), crypt.key)
+	sig, err = r.Sign([]byte("my message"), crypt.Key)
 	assert.Error(t, err)
 	assert.Contains(t, errors.Cause(err).Error(), "invalid ecdsa curve size")
 	assert.Nil(t, sig)
@@ -242,11 +242,11 @@ func TestECDSARaw(t *testing.T) {
 	err = r.Verify([]byte("my message"), []byte("signature"), PrivateECDSAKey)
 	assert.Error(t, err)
 
-	crypt, err = getKeyAndVerifyMethod([]byte(PublicECDSAKey))
+	crypt, err = GetKeyAndVerifyMethod([]byte(PublicECDSAKey))
 	assert.NoError(t, err)
 
 	// use wrong size key for verification
-	err = r.Verify([]byte("my message"), []byte("signature"), crypt.key)
+	err = r.Verify([]byte("my message"), []byte("signature"), crypt.Key)
 	assert.Error(t, err)
 	assert.Contains(t, errors.Cause(err).Error(), "invalid ecdsa key size")
 }

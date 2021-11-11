@@ -99,13 +99,39 @@ func (e *ECDSA256) Sign(message []byte, key interface{}) ([]byte, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "signer: error signing message")
 	}
-
 	// check if the size of the curve matches expected one;
 	// for now we are supporting only 256 bit ecdsa
 	if ecdsaKey.Curve.Params().BitSize != ecdsa256curveBits {
 		return nil, errors.New("signer: invalid ecdsa curve size")
 	}
+	return MarshalECDSASignature(r, s)
+}
 
+func (e *ECDSA256) Verify(message, sig []byte, key interface{}) error {
+	var ecdsaKey *ecdsa.PublicKey
+	var ok bool
+
+	// validate key
+	if ecdsaKey, ok = key.(*ecdsa.PublicKey); !ok {
+		return errors.New("signer: invalid public key")
+	}
+
+	r, s, err := UnmarshalECDSASignature(sig)
+	if err != nil {
+		return err
+	}
+
+	h := sha256.Sum256(message)
+
+	ok = ecdsa.Verify(ecdsaKey, h[:], r, s)
+	if !ok {
+		return errors.New("signer: verification failed")
+	}
+	return nil
+
+}
+
+func MarshalECDSASignature(r, s *big.Int) ([]byte, error) {
 	// we serialize the r and s into one array where the first
 	// half is the r and the other one s;
 	// as both values are ecdsa256curveBits size we need
@@ -135,40 +161,24 @@ func (e *ECDSA256) Sign(message []byte, key interface{}) ([]byte, error) {
 	return serialized, nil
 }
 
-func (e *ECDSA256) Verify(message, sig []byte, key interface{}) error {
-	var ecdsaKey *ecdsa.PublicKey
-	var ok bool
-
-	// validate key
-	if ecdsaKey, ok = key.(*ecdsa.PublicKey); !ok {
-		return errors.New("signer: invalid public key")
-	}
-
+func UnmarshalECDSASignature(sig []byte) (r, s *big.Int, e error) {
 	// check if the size of the key matches provided one
 	if len(sig) != 2*ecdsa256keySize {
-		return errors.Errorf("signer: invalid ecdsa key size: %d", len(sig))
+		return nil, nil, errors.Errorf("signer: invalid ecdsa key size: %d", len(sig))
 	}
 
 	// get the signature; see corresponding `Sign` function for more details
 	// about serialization
-	r := big.NewInt(0).SetBytes(sig[:ecdsa256keySize])
-	s := big.NewInt(0).SetBytes(sig[ecdsa256keySize:])
-
-	h := sha256.Sum256(message)
-
-	ok = ecdsa.Verify(ecdsaKey, h[:], r, s)
-	if !ok {
-		return errors.New("signer: verification failed")
-	}
-	return nil
-
+	r = big.NewInt(0).SetBytes(sig[:ecdsa256keySize])
+	s = big.NewInt(0).SetBytes(sig[ecdsa256keySize:])
+	return r, s, nil
 }
 
 type SigningMethod struct {
-	// key can be private or public depending if we want to sign or verify message
-	key    interface{}
-	public []byte
-	method Crypto
+	// Key can be private or public depending if we want to sign or verify message
+	Key    interface{}
+	Public []byte
+	Method Crypto
 }
 
 // PKISigner implements public-key encryption and supports X.509-encodded keys.
@@ -187,11 +197,11 @@ func NewVerifier(publicKey []byte) *PKISigner {
 }
 
 func (s *PKISigner) Sign(message []byte) ([]byte, error) {
-	sm, err := getKeyAndSignMethod(s.privateKey)
+	sm, err := GetKeyAndSignMethod(s.privateKey)
 	if err != nil {
 		return nil, err
 	}
-	sig, err := sm.method.Sign(message, sm.key)
+	sig, err := sm.Method.Sign(message, sm.Key)
 	if err != nil {
 		return nil, errors.Wrap(err, "signer: error signing image")
 	}
@@ -201,7 +211,7 @@ func (s *PKISigner) Sign(message []byte) ([]byte, error) {
 }
 
 func (s *PKISigner) Verify(message, sig []byte) error {
-	sm, err := getKeyAndVerifyMethod(s.publicKey)
+	sm, err := GetKeyAndVerifyMethod(s.publicKey)
 	if err != nil {
 		return err
 	}
@@ -211,18 +221,18 @@ func (s *PKISigner) Verify(message, sig []byte) error {
 		return errors.Wrap(err, "signer: error decoding signature")
 	}
 
-	return sm.method.Verify(message, dec[:decLen], sm.key)
+	return sm.Method.Verify(message, dec[:decLen], sm.Key)
 }
 
 func GetPublic(private []byte) ([]byte, error) {
-	sm, err := getKeyAndSignMethod(private)
+	sm, err := GetKeyAndSignMethod(private)
 	if err != nil {
 		return nil, errors.Wrap(err, "signer: error parsing private key")
 	}
-	return sm.public, nil
+	return sm.Public, nil
 }
 
-func getKeyAndVerifyMethod(keyPEM []byte) (*SigningMethod, error) {
+func GetKeyAndVerifyMethod(keyPEM []byte) (*SigningMethod, error) {
 	block, _ := pem.Decode(keyPEM)
 	if block == nil {
 		return nil, errors.New("signer: failed to parse public key")
@@ -234,15 +244,15 @@ func getKeyAndVerifyMethod(keyPEM []byte) (*SigningMethod, error) {
 	}
 	switch pub := pub.(type) {
 	case *rsa.PublicKey:
-		return &SigningMethod{key: pub, method: new(RSA)}, nil
+		return &SigningMethod{Key: pub, Method: new(RSA)}, nil
 	case *ecdsa.PublicKey:
-		return &SigningMethod{key: pub, method: new(ECDSA256)}, nil
+		return &SigningMethod{Key: pub, Method: new(ECDSA256)}, nil
 	default:
 		return nil, errors.Errorf("unsupported public key type: %v", pub)
 	}
 }
 
-func getKeyAndSignMethod(keyPEM []byte) (*SigningMethod, error) {
+func GetKeyAndSignMethod(keyPEM []byte) (*SigningMethod, error) {
 	block, _ := pem.Decode(keyPEM)
 	if block == nil {
 		return nil, errors.New("signer: failed to parse private key")
@@ -253,7 +263,7 @@ func getKeyAndSignMethod(keyPEM []byte) (*SigningMethod, error) {
 		if keyErr != nil {
 			return nil, errors.Wrap(err, "signer: can not extract public RSA key")
 		}
-		return &SigningMethod{key: rsaKey, public: pub, method: new(RSA)}, nil
+		return &SigningMethod{Key: rsaKey, Public: pub, Method: new(RSA)}, nil
 	}
 	ecdsaKey, err := x509.ParseECPrivateKey(block.Bytes)
 	if err == nil {
@@ -261,7 +271,7 @@ func getKeyAndSignMethod(keyPEM []byte) (*SigningMethod, error) {
 		if keyErr != nil {
 			return nil, errors.Wrap(err, "signer: can not extract public ECDSA key")
 		}
-		return &SigningMethod{key: ecdsaKey, public: pub, method: new(ECDSA256)}, nil
+		return &SigningMethod{Key: ecdsaKey, Public: pub, Method: new(ECDSA256)}, nil
 	}
 	return nil, errors.Wrap(err, "signer: unsupported private key type or error occured")
 }
