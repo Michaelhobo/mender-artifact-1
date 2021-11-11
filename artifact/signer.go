@@ -99,13 +99,39 @@ func (e *ECDSA256) Sign(message []byte, key interface{}) ([]byte, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "signer: error signing message")
 	}
-
 	// check if the size of the curve matches expected one;
 	// for now we are supporting only 256 bit ecdsa
 	if ecdsaKey.Curve.Params().BitSize != ecdsa256curveBits {
 		return nil, errors.New("signer: invalid ecdsa curve size")
 	}
+	return marshalECDSASignature(r, s)
+}
 
+func (e *ECDSA256) Verify(message, sig []byte, key interface{}) error {
+	var ecdsaKey *ecdsa.PublicKey
+	var ok bool
+
+	// validate key
+	if ecdsaKey, ok = key.(*ecdsa.PublicKey); !ok {
+		return errors.New("signer: invalid public key")
+	}
+
+	r, s, err := unmarshalECDSASignature(sig)
+	if err != nil {
+		return err
+	}
+
+	h := sha256.Sum256(message)
+
+	ok = ecdsa.Verify(ecdsaKey, h[:], r, s)
+	if !ok {
+		return errors.New("signer: verification failed")
+	}
+	return nil
+
+}
+
+func marshalECDSASignature(r, s *big.Int) ([]byte, error) {
 	// we serialize the r and s into one array where the first
 	// half is the r and the other one s;
 	// as both values are ecdsa256curveBits size we need
@@ -135,33 +161,17 @@ func (e *ECDSA256) Sign(message []byte, key interface{}) ([]byte, error) {
 	return serialized, nil
 }
 
-func (e *ECDSA256) Verify(message, sig []byte, key interface{}) error {
-	var ecdsaKey *ecdsa.PublicKey
-	var ok bool
-
-	// validate key
-	if ecdsaKey, ok = key.(*ecdsa.PublicKey); !ok {
-		return errors.New("signer: invalid public key")
-	}
-
+func unmarshalECDSASignature(sig []byte) (r, s *big.Int, e error) {
 	// check if the size of the key matches provided one
 	if len(sig) != 2*ecdsa256keySize {
-		return errors.Errorf("signer: invalid ecdsa key size: %d", len(sig))
+		return nil, nil, errors.Errorf("signer: invalid ecdsa key size: %d", len(sig))
 	}
 
 	// get the signature; see corresponding `Sign` function for more details
 	// about serialization
-	r := big.NewInt(0).SetBytes(sig[:ecdsa256keySize])
-	s := big.NewInt(0).SetBytes(sig[ecdsa256keySize:])
-
-	h := sha256.Sum256(message)
-
-	ok = ecdsa.Verify(ecdsaKey, h[:], r, s)
-	if !ok {
-		return errors.New("signer: verification failed")
-	}
-	return nil
-
+	r = big.NewInt(0).SetBytes(sig[:ecdsa256keySize])
+	s = big.NewInt(0).SetBytes(sig[ecdsa256keySize:])
+	return r, s, nil
 }
 
 type SigningMethod struct {
