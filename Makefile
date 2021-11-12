@@ -22,7 +22,7 @@ TOOLS = \
 VERSION = $(shell git describe --tags --dirty --exact-match 2>/dev/null || git rev-parse --short HEAD)
 
 GO_LDFLAGS = \
-	-ldflags "-X github.com/mendersoftware/mender-artifact/cli.Version=$(VERSION)"
+	-ldflags "-X github.com/michaelhobo/mender-artifact-1/cli.Version=$(VERSION)"
 
 ifeq ($(V),1)
 BUILDV = -v
@@ -42,7 +42,7 @@ build:
 
 PLATFORMS := darwin linux windows
 
-GO_LDFLAGS_WIN = -ldflags "-X github.com/mendersoftware/mender-artifact/cli.Version=$(VERSION) -linkmode=internal -s -w -extldflags '-static' -extld=x86_64-w64-mingw32-gcc"
+GO_LDFLAGS_WIN = -ldflags "-X github.com/michaelhobo/mender-artifact-1/cli.Version=$(VERSION) -linkmode=internal -s -w -extldflags '-static' -extld=x86_64-w64-mingw32-gcc"
 
 build-natives:
 	@arch="amd64";
@@ -125,7 +125,7 @@ htmlcover: coverage
 
 instrument-binary:
 	git apply patches/0001-Instrument-with-coverage.patch
-	gobinarycoverage github.com/mendersoftware/mender-artifact
+	gobinarycoverage github.com/michaelhobo/mender-artifact-1
 
 coverage:
 	rm -f coverage.txt

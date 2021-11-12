@@ -217,7 +217,8 @@ func (f *fakeGoogleKMSClient) AsymmetricSign(_ context.Context, req *kmspb.Asymm
 			return nil, fmt.Errorf("key %q: %v", req.Name, err)
 		}
 	case *ECDSA256:
-		sig, err = ecdsa.SignASN1(rand.Reader, sm.key.(*ecdsa.PrivateKey), dec[:decLen])
+		privKey := sm.key.(*ecdsa.PrivateKey)
+		sig, err = privKey.Sign(rand.Reader, dec[:decLen], nil)
 		if err != nil {
 			return nil, fmt.Errorf("key %q: %v", req.Name, err)
 		}

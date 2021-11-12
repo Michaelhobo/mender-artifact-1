@@ -27,8 +27,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mendersoftware/mender-artifact/areader"
-	"github.com/mendersoftware/mender-artifact/utils"
+	"github.com/michaelhobo/mender-artifact-1/areader"
+	"github.com/michaelhobo/mender-artifact-1/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

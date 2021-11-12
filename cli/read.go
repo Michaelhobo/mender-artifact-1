@@ -24,10 +24,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/mendersoftware/mender-artifact/areader"
-	"github.com/mendersoftware/mender-artifact/artifact"
-	"github.com/mendersoftware/mender-artifact/handlers"
-	"github.com/mendersoftware/mender-artifact/utils"
+	"github.com/michaelhobo/mender-artifact-1/areader"
+	"github.com/michaelhobo/mender-artifact-1/artifact"
+	"github.com/michaelhobo/mender-artifact-1/handlers"
+	"github.com/michaelhobo/mender-artifact-1/utils"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 )

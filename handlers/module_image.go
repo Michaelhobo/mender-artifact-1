@@ -20,7 +20,7 @@ import (
 	"io"
 	"path/filepath"
 
-	"github.com/mendersoftware/mender-artifact/artifact"
+	"github.com/michaelhobo/mender-artifact-1/artifact"
 	"github.com/pkg/errors"
 )
 

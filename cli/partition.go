@@ -27,9 +27,9 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/mendersoftware/mender-artifact/areader"
-	"github.com/mendersoftware/mender-artifact/artifact"
-	"github.com/mendersoftware/mender-artifact/utils"
+	"github.com/michaelhobo/mender-artifact-1/areader"
+	"github.com/michaelhobo/mender-artifact-1/artifact"
+	"github.com/michaelhobo/mender-artifact-1/utils"
 	"github.com/pkg/errors"
 )
 

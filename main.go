@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mendersoftware/mender-artifact/cli"
+	"github.com/michaelhobo/mender-artifact-1/cli"
 )
 
 func run() error {

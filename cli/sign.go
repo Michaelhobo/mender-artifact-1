@@ -19,7 +19,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/mendersoftware/mender-artifact/awriter"
+	"github.com/michaelhobo/mender-artifact-1/awriter"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 )

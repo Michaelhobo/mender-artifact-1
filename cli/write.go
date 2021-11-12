@@ -30,12 +30,12 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/mendersoftware/mender-artifact/artifact"
-	"github.com/mendersoftware/mender-artifact/artifact/stage"
-	"github.com/mendersoftware/mender-artifact/awriter"
-	"github.com/mendersoftware/mender-artifact/cli/util"
-	"github.com/mendersoftware/mender-artifact/handlers"
-	"github.com/mendersoftware/mender-artifact/utils"
+	"github.com/michaelhobo/mender-artifact-1/artifact"
+	"github.com/michaelhobo/mender-artifact-1/artifact/stage"
+	"github.com/michaelhobo/mender-artifact-1/awriter"
+	"github.com/michaelhobo/mender-artifact-1/cli/util"
+	"github.com/michaelhobo/mender-artifact-1/handlers"
+	"github.com/michaelhobo/mender-artifact-1/utils"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 )

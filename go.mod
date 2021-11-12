@@ -1,4 +1,4 @@
-module github.com/mendersoftware/mender-artifact
+module github.com/michaelhobo/mender-artifact-1
 
 go 1.14
 

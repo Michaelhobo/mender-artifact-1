@@ -28,9 +28,9 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/mendersoftware/mender-artifact/artifact"
-	"github.com/mendersoftware/mender-artifact/handlers"
-	"github.com/mendersoftware/mender-artifact/utils"
+	"github.com/michaelhobo/mender-artifact-1/artifact"
+	"github.com/michaelhobo/mender-artifact-1/handlers"
+	"github.com/michaelhobo/mender-artifact-1/utils"
 )
 
 type SignatureVerifyFn func(message, sig []byte) error

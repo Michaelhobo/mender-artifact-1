@@ -22,9 +22,9 @@ import (
 	"path"
 	"strings"
 
-	"github.com/mendersoftware/mender-artifact/areader"
-	"github.com/mendersoftware/mender-artifact/artifact"
-	"github.com/mendersoftware/mender-artifact/handlers"
+	"github.com/michaelhobo/mender-artifact-1/areader"
+	"github.com/michaelhobo/mender-artifact-1/artifact"
+	"github.com/michaelhobo/mender-artifact-1/handlers"
 
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"

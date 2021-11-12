@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/mendersoftware/mender-artifact/artifact"
+	"github.com/michaelhobo/mender-artifact-1/artifact"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

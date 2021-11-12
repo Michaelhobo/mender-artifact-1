@@ -20,8 +20,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mendersoftware/mender-artifact/areader"
-	"github.com/mendersoftware/mender-artifact/artifact"
+	"github.com/michaelhobo/mender-artifact-1/areader"
+	"github.com/michaelhobo/mender-artifact-1/artifact"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

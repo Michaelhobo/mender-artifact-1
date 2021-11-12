@@ -1,6 +1,6 @@
 [![Build Status](https://gitlab.com/Northern.tech/Mender/mender-artifact/badges/master/pipeline.svg)](https://gitlab.com/Northern.tech/Mender/mender-artifact/pipelines)
 [![Coverage Status](https://coveralls.io/repos/github/mendersoftware/mender-artifact/badge.svg?branch=master)](https://coveralls.io/github/mendersoftware/mender-artifact?branch=master)
-[![Go Report Card](https://goreportcard.com/badge/github.com/mendersoftware/mender-artifact)](https://goreportcard.com/report/github.com/mendersoftware/mender-artifact)
+[![Go Report Card](https://goreportcard.com/badge/github.com/michaelhobo/mender-artifact-1)](https://goreportcard.com/report/github.com/michaelhobo/mender-artifact-1)
 
 Mender Artifacts Library
 ==============================================
@@ -41,8 +41,8 @@ You can use the parser and reader in go in the standard way:
 
 ```
 import (
-        "github.com/mendersoftware/mender-artifact/parser"
-        "github.com/mendersoftware/mender-artifact/reader"
+        "github.com/michaelhobo/mender-artifact-1/parser"
+        "github.com/michaelhobo/mender-artifact-1/reader"
 ...
 )
 ```

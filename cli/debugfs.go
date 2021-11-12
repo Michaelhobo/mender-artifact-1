@@ -24,7 +24,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/mendersoftware/mender-artifact/utils"
+	"github.com/michaelhobo/mender-artifact-1/utils"
 	"github.com/pkg/errors"
 )
 
