@@ -127,6 +127,12 @@ func getCliContext() *cli.App {
 			"the Artifact.",
 	}
 
+	gcpKMSKeyFlag := cli.StringFlag{
+		Name: "gcp-kms-key",
+		Usage: "Resource ID of the GCP KMS key that will be used to sign " +
+			"the Artifact.",
+	}
+
 	publicKeyFlag := cli.StringFlag{
 		Name: "key, k",
 		Usage: "Full path to the public key that will be used to verify " +
@@ -227,6 +233,7 @@ func getCliContext() *cli.App {
 			Value: LatestFormatVersion,
 		},
 		privateKeyFlag,
+		gcpKMSKeyFlag,
 		cli.StringSliceFlag{
 			Name: "script, s",
 			Usage: "Full path to the state script(s). You can specify multiple " +
@@ -390,7 +397,10 @@ func getCliContext() *cli.App {
 		Action:      validateArtifact,
 		UsageText:   "mender-artifact validate [options] <pathspec>",
 		Description: "This command validates artifact file provided by pathspec.",
-		Flags:       []cli.Flag{publicKeyFlag},
+		Flags: []cli.Flag{
+			publicKeyFlag,
+			gcpKMSKeyFlag,
+		},
 	}
 
 	//
@@ -405,6 +415,7 @@ func getCliContext() *cli.App {
 		Description: "This command validates artifact file provided by pathspec.",
 		Flags: []cli.Flag{
 			publicKeyFlag,
+			gcpKMSKeyFlag,
 			cli.BoolFlag{
 				Name:  "no-progress",
 				Usage: "Suppress the progressbar output",
@@ -426,6 +437,7 @@ func getCliContext() *cli.App {
 	}
 	sign.Flags = []cli.Flag{
 		privateKeyFlag,
+		gcpKMSKeyFlag,
 		cli.StringFlag{
 			Name: "output-path, o",
 			Usage: "Full path to output signed artifact file; " +
@@ -488,6 +500,7 @@ func getCliContext() *cli.App {
 			Usage: "Full path to the tenant token that will be injected into modified file.",
 		},
 		privateKeyFlag,
+		gcpKMSKeyFlag,
 		compressionFlag,
 	}
 	modify.Before = func(c *cli.Context) error {
@@ -511,6 +524,7 @@ func getCliContext() *cli.App {
 	copy.Flags = []cli.Flag{
 		compressionFlag,
 		privateKeyFlag,
+		gcpKMSKeyFlag,
 	}
 
 	cat := cli.Command{

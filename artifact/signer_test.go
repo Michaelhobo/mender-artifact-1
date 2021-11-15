@@ -112,6 +112,18 @@ BlUY/oCrAGUGN10F49+c
 -----END DSA PRIVATE KEY-----`
 )
 
+func mustCreateSigner(t *testing.T, key []byte) *PKISigner {
+	s, err := NewPKISigner(key)
+	assert.NoError(t, err)
+	return s
+}
+
+func mustCreateVerifier(t *testing.T, key []byte) *PKISigner {
+	v, err := NewPKIVerifier(key)
+	assert.NoError(t, err)
+	return v
+}
+
 func TestPublicKey(t *testing.T) {
 	m, err := GetKeyAndVerifyMethod([]byte(PublicRSAKey))
 	assert.NoError(t, err)
@@ -162,17 +174,17 @@ func TestPrivateKey(t *testing.T) {
 func TestRSA(t *testing.T) {
 	msg := []byte("this is secret message")
 
-	s := NewSigner([]byte(PrivateRSAKey))
+	s := mustCreateSigner(t, []byte(PrivateRSAKey))
 	sig, err := s.Sign(msg)
 	assert.NoError(t, err)
 	assert.NotNil(t, sig)
 
-	v := NewVerifier([]byte(PublicRSAKey))
+	v := mustCreateVerifier(t, []byte(PublicRSAKey))
 	err = v.Verify(msg, sig)
 	assert.NoError(t, err)
 
 	// use invalid key
-	v = NewVerifier([]byte(PublicRSAKeyError))
+	v = mustCreateVerifier(t, []byte(PublicRSAKeyError))
 	err = v.Verify(msg, sig)
 	assert.Error(t, err)
 	assert.Contains(t, errors.Cause(err).Error(), "verification error")
@@ -191,23 +203,23 @@ func TestRSARaw(t *testing.T) {
 func TestECDSA(t *testing.T) {
 	msg := []byte("this is secret message")
 
-	s := NewSigner([]byte(PrivateECDSAKey))
+	s := mustCreateSigner(t, []byte(PrivateECDSAKey))
 	sig, err := s.Sign(msg)
 	assert.NoError(t, err)
 	assert.NotNil(t, sig)
 
-	v := NewVerifier([]byte(PublicECDSAKey))
+	v := mustCreateVerifier(t, []byte(PublicECDSAKey))
 	err = v.Verify(msg, sig)
 	assert.NoError(t, err)
 
 	// use invalid key
-	v = NewVerifier([]byte(PublicECDSAKeyError))
+	v = mustCreateVerifier(t, []byte(PublicECDSAKeyError))
 	err = v.Verify(msg, sig)
 	assert.Error(t, err)
 	assert.Contains(t, errors.Cause(err).Error(), "verification failed")
 
 	// use invalid signature
-	v = NewVerifier([]byte(PublicECDSAKey))
+	v = mustCreateVerifier(t, []byte(PublicECDSAKey))
 	// change the first byte of the signature
 	sig, err = s.Sign([]byte("this is a different message"))
 	assert.NoError(t, err)
@@ -217,7 +229,7 @@ func TestECDSA(t *testing.T) {
 	assert.Contains(t, errors.Cause(err).Error(), "verification failed")
 
 	// use broken key
-	v = NewVerifier([]byte("broken key"))
+	v = mustCreateVerifier(t, []byte("broken key"))
 	err = v.Verify(msg, sig)
 	assert.Error(t, err)
 	assert.Contains(t, errors.Cause(err).Error(), "failed to parse")

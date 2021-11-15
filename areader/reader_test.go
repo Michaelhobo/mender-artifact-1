@@ -149,7 +149,10 @@ func MakeAnyImageArtifact(version int, signed bool,
 	if !signed {
 		aw = awriter.NewWriter(art, comp)
 	} else {
-		s := artifact.NewSigner([]byte(PrivateKey))
+		s, err := artifact.NewPKISigner([]byte(PrivateKey))
+		if err != nil {
+			return nil, err
+		}
 		aw = awriter.NewWriterSigned(art, comp, s)
 	}
 
@@ -191,6 +194,12 @@ func MakeAnyImageArtifact(version int, signed bool,
 	return art, nil
 }
 
+func mustCreateVerifier(t *testing.T, key []byte) *artifact.PKISigner {
+	v, err := artifact.NewPKIVerifier(key)
+	assert.NoError(t, err)
+	return v
+}
+
 func TestReadArtifact(t *testing.T) {
 
 	updFileContent := bytes.NewBuffer(nil)
@@ -209,15 +218,15 @@ func TestReadArtifact(t *testing.T) {
 		readError error
 	}{
 		"version 2 pass":   {2, false, rfh(), nil, nil},
-		"version 2 signed": {2, true, rfh(), artifact.NewVerifier([]byte(PublicKey)), nil},
-		"version 2 - public key error": {2, true, rfh(), artifact.NewVerifier([]byte(PublicKeyError)),
+		"version 2 signed": {2, true, rfh(), mustCreateVerifier(t, []byte(PublicKey)), nil},
+		"version 2 - public key error": {2, true, rfh(), mustCreateVerifier(t, []byte(PublicKeyError)),
 			errors.New("reader: invalid signature: crypto/rsa: verification error")},
 		// test that we do not need a verifier for signed artifact
 		"version 2 - no verifier needed for a signed artifact": {2, true, rfh(), nil, nil},
 		// Version 3 tests.
 		"version 3 - base case": {3, false, rfh(), nil, nil},
-		"version 3 - signed":    {3, true, rfh(), artifact.NewVerifier([]byte(PublicKey)), nil},
-		"version 3 - public key error": {3, true, rfh(), artifact.NewVerifier([]byte(PublicKeyError)),
+		"version 3 - signed":    {3, true, rfh(), mustCreateVerifier(t, []byte(PublicKey)), nil},
+		"version 3 - public key error": {3, true, rfh(), mustCreateVerifier(t, []byte(PublicKeyError)),
 			errors.New("readHeaderV3: reader: invalid signature: crypto/rsa: verification error")},
 	}
 

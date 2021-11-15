@@ -82,7 +82,7 @@ type ModImageArtifact struct {
 	ModImageBase
 	*unpackedArtifact
 	comp artifact.Compressor
-	key  []byte
+	key  SigningKey
 }
 
 type ModImageSdimg struct {
@@ -108,7 +108,7 @@ type vImageAndDir struct {
 
 // Open is a utility function that parses an input image and returns a
 // V(irtual)P(artition)Image.
-func (v vImage) Open(key []byte, imgname string, overrideCompressor ...artifact.Compressor) (VPImage, error) {
+func (v vImage) Open(key SigningKey, imgname string, overrideCompressor ...artifact.Compressor) (VPImage, error) {
 	// first we need to check  if we are having artifact or image file
 	art, err := os.Open(imgname)
 	if err != nil {
@@ -156,7 +156,7 @@ func (v vImage) Open(key []byte, imgname string, overrideCompressor ...artifact.
 // Shortcut to use an image with one file. This is inefficient if you are going
 // to write more than one file, since it writes out the entire image
 // afterwards. In that case use VPImage and VPFile instead.
-func (v vImage) OpenFile(key []byte, imgAndPath string) (VPFile, error) {
+func (v vImage) OpenFile(key SigningKey, imgAndPath string) (VPFile, error) {
 	imagepath, filepath, err := parseImgPath(imgAndPath)
 	if err != nil {
 		return nil, err
@@ -180,7 +180,7 @@ func (v vImage) OpenFile(key []byte, imgAndPath string) (VPFile, error) {
 }
 
 // Shortcut to use an image with one directory.
-func (v vImage) OpenDir(key []byte, imgAndPath string) (VPDir, error) {
+func (v vImage) OpenDir(key SigningKey, imgAndPath string) (VPDir, error) {
 	imagepath, dirpath, err := parseImgPath(imgAndPath)
 	if err != nil {
 		return nil, err

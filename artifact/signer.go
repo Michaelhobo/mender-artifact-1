@@ -184,24 +184,39 @@ type SigningMethod struct {
 // PKISigner implements public-key encryption and supports X.509-encodded keys.
 // For now both RSA and 256 bits ECDSA are supported.
 type PKISigner struct {
-	privateKey []byte
-	publicKey  []byte
+	signMethod, verifyMethod *SigningMethod
 }
 
-func NewSigner(privateKey []byte) *PKISigner {
-	return &PKISigner{privateKey: privateKey}
-}
-
-func NewVerifier(publicKey []byte) *PKISigner {
-	return &PKISigner{publicKey: publicKey}
-}
-
-func (s *PKISigner) Sign(message []byte) ([]byte, error) {
-	sm, err := GetKeyAndSignMethod(s.privateKey)
+func NewPKISigner(privateKey []byte) (*PKISigner, error) {
+	signMethod, err := GetKeyAndSignMethod(privateKey)
 	if err != nil {
 		return nil, err
 	}
-	sig, err := sm.Method.Sign(message, sm.Key)
+	verifyMethod, err := GetKeyAndVerifyMethod(signMethod.Public)
+	if err != nil {
+		return nil, err
+	}
+	return &PKISigner{
+		signMethod:   signMethod,
+		verifyMethod: verifyMethod,
+	}, nil
+}
+
+func NewPKIVerifier(publicKey []byte) (*PKISigner, error) {
+	verifyMethod, err := GetKeyAndVerifyMethod(publicKey)
+	if err != nil {
+		return nil, err
+	}
+	return &PKISigner{
+		verifyMethod: verifyMethod,
+	}, nil
+}
+
+func (s *PKISigner) Sign(message []byte) ([]byte, error) {
+	if s.signMethod == nil {
+		return nil, errors.New("signer: only verification allowed with this signer")
+	}
+	sig, err := s.signMethod.Method.Sign(message, s.signMethod.Key)
 	if err != nil {
 		return nil, errors.Wrap(err, "signer: error signing image")
 	}
@@ -211,17 +226,13 @@ func (s *PKISigner) Sign(message []byte) ([]byte, error) {
 }
 
 func (s *PKISigner) Verify(message, sig []byte) error {
-	sm, err := GetKeyAndVerifyMethod(s.publicKey)
-	if err != nil {
-		return err
-	}
 	dec := make([]byte, base64.StdEncoding.DecodedLen(len(sig)))
 	decLen, err := base64.StdEncoding.Decode(dec, sig)
 	if err != nil {
 		return errors.Wrap(err, "signer: error decoding signature")
 	}
 
-	return sm.Method.Verify(message, dec[:decLen], sm.Key)
+	return s.verifyMethod.Method.Verify(message, dec[:decLen], s.verifyMethod.Key)
 }
 
 func GetPublic(private []byte) ([]byte, error) {

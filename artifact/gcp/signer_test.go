@@ -177,8 +177,11 @@ func TestKMSSignatureCompatibility(t *testing.T) {
 				client:     &fakeKMSClient{},
 				rpcTimeout: 60 * time.Second,
 			}
-			goldenSigner := artifact.NewSigner([]byte(availableKMSKeys[keyName].private))
-			goldenVerifier := artifact.NewVerifier([]byte(availableKMSKeys[keyName].public))
+			goldenSigner, err := artifact.NewPKISigner([]byte(availableKMSKeys[keyName].private))
+			if err != nil {
+				t.Errorf("NewPKISigner: %v", err)
+				return
+			}
 
 			// Sign with Google KMS, verify with golden verifier.
 			sig, err := kmsSigner.Sign(msg)
@@ -186,7 +189,7 @@ func TestKMSSignatureCompatibility(t *testing.T) {
 				t.Errorf("Sign: %v", err)
 				return
 			}
-			if err := goldenVerifier.Verify(msg, sig); err != nil {
+			if err := goldenSigner.Verify(msg, sig); err != nil {
 				t.Errorf("Golden Verify: %v", err)
 				return
 			}

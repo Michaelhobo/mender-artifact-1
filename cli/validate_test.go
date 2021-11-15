@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/mendersoftware/mender-artifact/artifact"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
@@ -81,7 +82,9 @@ func TestValidate(t *testing.T) {
 		fmt.Printf("---- Running test validate-%d ----\n", i)
 		art, err := WriteTestArtifact(test.version, "", test.writeKey)
 		assert.NoError(t, err)
-		err = validate(art, test.validateKey)
+		validater, err := artifact.NewPKIVerifier(test.validateKey)
+		assert.NoError(t, err)
+		err = validate(art, validater)
 		if test.expectedError == "" {
 			assert.NoError(t, err)
 		} else {

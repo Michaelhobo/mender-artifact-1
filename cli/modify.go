@@ -32,7 +32,7 @@ func modifyArtifact(c *cli.Context) (err error) {
 		return cli.NewExitError("compressor '"+c.GlobalString("compression")+"' is not supported: "+err.Error(), 1)
 	}
 
-	privateKey, err := getKey(c.String("key"))
+	privateKey, err := getKey(c)
 	if err != nil {
 		return cli.NewExitError("Unable to load key: "+err.Error(), 1)
 	}
