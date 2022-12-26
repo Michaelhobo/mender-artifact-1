@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/kms v1.5.0
 	github.com/googleapis/gax-go/v2 v2.6.0
 	github.com/hashicorp/vault/api v1.8.2
+	github.com/klauspost/compress v1.15.13
 	github.com/klauspost/pgzip v1.2.5
 	github.com/mendersoftware/openssl v0.0.0-20220610125625-9fe59ddd6ba4
 	github.com/mendersoftware/progressbar v0.0.3
@@ -52,7 +53,6 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/vault/sdk v0.6.0 // indirect
 	github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb // indirect
-	github.com/klauspost/compress v1.15.13 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.4 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/mattn/go-colorable v0.1.6 // indirect
